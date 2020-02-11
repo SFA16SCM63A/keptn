@@ -26,10 +26,21 @@ keptn add-resource --project=$PROJECT --stage=hardening --service=catalogue --re
 verify_test_step $? "keptn add-resource failed."
 
 # send start evaluation command
-keptn send event start-evaluation --project=$PROJECT --stage=hardening --service=catalogue --timeframe=5m
+response=$(keptn send event start-evaluation --project=$PROJECT --stage=hardening --service=catalogue --timeframe=5m)
+
+echo $response
+
+keptn_context_id=$(echo $response | awk -F'Keptn context:' '{ print $2 }' | xargs)
 
 sleep 10
 # Todo: parse output of above command and extract keptn context)
-# keptn get event evaluation-done --keptn-context=...
+response=$(keptn get event evaluation-done --keptn-context=${keptn_context_id})
+
+if [[ $? -eq 0 ]]; then
+  echo "Got result"
+  echo $response
+else
+  exit 1
+fi
 
 exit 0
